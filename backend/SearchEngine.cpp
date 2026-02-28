@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <thread>
+#include <climits>
 #include <vector>
 #include <algorithm>
 #include <filesystem>
