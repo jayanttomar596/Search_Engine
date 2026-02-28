@@ -231,7 +231,7 @@ int main() {
         engine.clearIndex();
 
         // 2. Delete all runtime uploaded files
-        for (const auto& entry : fs::directory_iterator("../runtime_corpus")) {
+        for (const auto& entry : fs::directory_iterator("runtime_corpus")) {
             if (entry.is_regular_file()) {
                 fs::remove(entry.path());
             }
@@ -269,7 +269,7 @@ int main() {
         vector<string> filePaths;
 
         // Scan permanent corpus
-        for (const auto& entry : fs::directory_iterator("../documents")) {
+        for (const auto& entry : fs::directory_iterator("documents")) {
             if (entry.is_regular_file() &&
                 entry.path().extension() == ".txt") {
                 filePaths.push_back(entry.path().string());
@@ -277,7 +277,7 @@ int main() {
         }
 
         // Scan runtime corpus
-        for (const auto& entry : fs::directory_iterator("../runtime_corpus")) {
+        for (const auto& entry : fs::directory_iterator("runtime_corpus")) {
             if (entry.is_regular_file() &&
                 entry.path().extension() == ".txt") {
                 filePaths.push_back(entry.path().string());

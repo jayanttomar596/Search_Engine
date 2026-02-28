@@ -851,7 +851,7 @@ void SearchEngine::scanCorpusFolders() {
     // Include permanent corpus ONLY if enabled
     if (includeInitialCorpus) {
 
-        for (const auto& entry : fs::directory_iterator("../documents")) {
+        for (const auto& entry : fs::directory_iterator("documents")) {
             if (entry.is_regular_file() &&
                 entry.path().extension() == ".txt") {
                 documents.push_back(entry.path().string());
@@ -860,7 +860,7 @@ void SearchEngine::scanCorpusFolders() {
     }
 
     // Always include runtime corpus
-    for (const auto& entry : fs::directory_iterator("../runtime_corpus")) {
+    for (const auto& entry : fs::directory_iterator("runtime_corpus")) {
         if (entry.is_regular_file() &&
             entry.path().extension() == ".txt") {
             documents.push_back(entry.path().string());
