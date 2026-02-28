@@ -19,7 +19,7 @@ function uploadFile() {
   const reader = new FileReader();
 
   reader.onload = function (e) {
-    fetch("http://localhost:8080/upload?filename=" + encodeURIComponent(file.name), {
+    fetch("/upload?filename=" + encodeURIComponent(file.name), {
       method: "POST",
       headers: {
         "Content-Type": "text/plain"
@@ -27,9 +27,7 @@ function uploadFile() {
       body: e.target.result
     })
     .then(res => {
-      if (!res.ok) {
-        throw new Error("Server error");
-      }
+      if (!res.ok) throw new Error("Server error");
       return res.text();
     })
     .then(msg => {
@@ -56,20 +54,15 @@ function uploadFile() {
 
 
 
-
 // ========================
 // 🔹 WORD BASED HIGHLIGHT
 // ========================
 function highlightSnippet(text, query) {
-
   let words = query.toLowerCase().split(" ");
 
   words.forEach(word => {
-
     if (!word) return;
-
     const regex = new RegExp(`\\b(${word})\\b`, "gi");
-
     text = text.replace(regex, match => `<mark>${match}</mark>`);
   });
 
@@ -85,26 +78,24 @@ function search() {
   const q = input.value.trim();
   if (!q) return;
 
-  fetch(`http://localhost:8080/search?q=${encodeURIComponent(q)}`)
+  fetch(`/search?q=${encodeURIComponent(q)}`)
     .then(res => {
-      if (!res.ok) {
-        throw new Error("Search request failed");
-      }
+      if (!res.ok) throw new Error("Search request failed");
       return res.json();
     })
     .then(data => {
       output.innerHTML = `
-      <p style="color:#94a3b8">
-        Search time: <b>${data.latency_ms.toFixed(3)} ms</b>
-      </p>
-    `;
+        <p style="color:#94a3b8">
+          Search time: <b>${data.latency_ms.toFixed(3)} ms</b>
+        </p>
+      `;
 
       if (!data.results || data.results.length === 0) {
-        output.innerHTML = "<p class='no-result'>No results found</p>";
+        output.innerHTML += "<p class='no-result'>No results found</p>";
         return;
       }
 
-      if(data.results[0].suggestion){
+      if (data.results[0].suggestion) {
         output.innerHTML += `
           <p style="color:#facc15">
             Did you mean:
@@ -114,7 +105,6 @@ function search() {
           </p>
         `;
       }
-
 
       data.results.forEach(r => {
         const card = document.createElement("div");
@@ -128,7 +118,7 @@ function search() {
           <p><b>Score:</b> ${r.score.toFixed(4)}</p>
           <p class="snippet">${highlighted}...</p>
         `;
-        
+
         output.appendChild(card);
       });
     })
@@ -137,6 +127,7 @@ function search() {
       output.innerHTML = "<p class='no-result'>Search failed</p>";
     });
 }
+
 
 
 // ========================
@@ -150,7 +141,7 @@ input.addEventListener("input", () => {
     return;
   }
 
-  fetch(`http://localhost:8080/autocomplete?prefix=${encodeURIComponent(q)}`)
+  fetch(`/autocomplete?prefix=${encodeURIComponent(q)}`)
     .then(res => res.json())
     .then(data => {
       suggestions.innerHTML = "";
@@ -177,10 +168,11 @@ input.addEventListener("input", () => {
 
 
 
-
-
+// ========================
+// 🔹 Corpus Info
+// ========================
 function updateCorpusInfo() {
-  fetch("http://localhost:8080/corpusInfo")
+  fetch("/corpusInfo")
     .then(res => res.json())
     .then(data => {
       document.getElementById("corpusStats").innerText =
@@ -190,33 +182,32 @@ function updateCorpusInfo() {
 
 
 
+// ========================
+// 🔹 Load Initial Corpus
+// ========================
 function loadInitialCorpus() {
 
-  if (!confirm("This will replace the current corpus. Continue?")) {
-    return;
-  }
+  if (!confirm("This will replace the current corpus. Continue?")) return;
 
-  fetch("http://localhost:8080/loadSample")
+  fetch("/loadSample")
     .then(res => res.json())
     .then(data => {
-
       document.getElementById("indexStats").innerText =
         `Index built in ${data.indexing_time_ms.toFixed(3)} ms using ${data.threads_used} threads`;
 
       updateCorpusInfo();
-    })
-    .catch(err => {
-      console.error("Load error:", err);
     });
 }
 
 
 
+// ========================
+// 🔹 Rebuild Index
+// ========================
 function rebuildIndex() {
-  fetch("http://localhost:8080/rebuildIndex", { method: "POST" })
+  fetch("/rebuildIndex", { method: "POST" })
     .then(res => res.json())
     .then(data => {
-
       document.getElementById("indexStats").innerText =
         `Index rebuilt in ${data.indexing_time_ms.toFixed(3)} ms using ${data.threads_used} threads`;
 
@@ -226,39 +217,33 @@ function rebuildIndex() {
 
 
 
+// ========================
+// 🔹 Clear Corpus
+// ========================
 function clearCorpus() {
-  fetch("http://localhost:8080/clearCorpus", { method: "POST" })
+  fetch("/clearCorpus", { method: "POST" })
     .then(res => res.text())
     .then(msg => {
       alert(msg);
-      document.querySelector("button[onclick='loadInitialCorpus()']").disabled = false;
       updateCorpusInfo();
     });
 }
 
 
 
-
-
+// ========================
+// 🔹 Benchmark
+// ========================
 function runBenchmark() {
-
-  fetch("http://localhost:8080/benchmark")
+  fetch("/benchmark")
     .then(res => res.json())
     .then(data => {
-
       document.getElementById("indexStats").innerText =
         `Single-thread: ${data.single_thread_ms.toFixed(3)} ms | ` +
         `Multi-thread: ${data.multi_thread_ms.toFixed(3)} ms | ` +
         `Threads: ${data.threads_used} | ` +
         `Speedup: ${data.speedup.toFixed(2)}x`;
-    })
-    .catch(err => {
-      console.error("Benchmark error:", err);
     });
 }
 
-
 window.onload = updateCorpusInfo;
-
-
-
