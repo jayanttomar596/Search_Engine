@@ -70,7 +70,7 @@ int main() {
     httplib::Server server;
 
 
-    server.set_mount_point("/", "../frontend");
+    server.set_mount_point("/", "frontend");
     
 
     // STEP 1: Initialize runtime_corpus folder
