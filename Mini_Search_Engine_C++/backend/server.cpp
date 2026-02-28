@@ -68,6 +68,9 @@ string toJson(const vector<SearchResult>& results) {
 int main() {
     SearchEngine engine;
     httplib::Server server;
+
+
+    server.set_mount_point("/", "../frontend");
     
 
     // STEP 1: Initialize runtime_corpus folder
@@ -328,6 +331,13 @@ int main() {
     });
 
 
-    cout << "Dynamic Search Engine running at http://localhost:8080\n";
-    server.listen("localhost", 8080);
+    int port = 8080;
+
+    if (const char* env_p = std::getenv("PORT")) {
+        port = std::stoi(env_p);
+    }
+
+    cout << "Dynamic Search Engine running on port " << port << endl;
+
+    server.listen("0.0.0.0", port);
 }
